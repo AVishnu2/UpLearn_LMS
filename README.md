@@ -1,6 +1,6 @@
 # 🎓 UpLearnLMS — All-in-One Learning Management System
 
-> **Built for the EdTech LMS Hackathon** — One platform replacing 6 disconnected tools.
+> **Built for the Gradskills Hackathon**
 
 UpLearnLMS unifies **courses, live classes, assignments, fee collection, communities and certifications** for institutes, coaching centers and cohort programs — all in one beautiful, modern interface.
 
