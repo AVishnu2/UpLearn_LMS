@@ -185,7 +185,7 @@ npm run build
 
 ## 🏆 Hackathon
 
-Built with ♥ for the **EdTech LMS Hackathon** — UpLearnLMS
+Built with ♥ for the **Gradskills Hackathon** — UpLearnLMS
 
 ---
 
