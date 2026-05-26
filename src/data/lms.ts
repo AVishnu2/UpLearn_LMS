@@ -37,6 +37,25 @@ export const courses: Course[] = [
     ],
   },
   {
+    id: "ai-product",
+    title: "Building AI Products",
+    instructor: "Karan Verma",
+    category: "AI",
+    price: 0,
+    rating: 4.95,
+    students: 3402,
+    lessons: 64,
+    hours: 30,
+    level: "Advanced",
+    cover: "from-indigo-500 to-blue-600",
+    blurb: "Take an idea to a deployed AI-native product. RAG, evals, agents, pricing and GTM.",
+    modules: [
+      { title: "Foundations", lessons: ["LLMs", "Prompting", "Evals"] },
+      { title: "Systems", lessons: ["RAG", "Agents", "Tooling"] },
+      { title: "Ship", lessons: ["Deploy", "Monitor", "Iterate"] },
+    ],
+  },
+  {
     id: "data-science-bootcamp",
     title: "Applied Data Science Bootcamp",
     instructor: "Prof. Rohit Mehta",
@@ -72,25 +91,6 @@ export const courses: Course[] = [
       { title: "Discover", lessons: ["Interviews", "Synthesis"] },
       { title: "Design", lessons: ["IA", "Wireframes", "Visual"] },
       { title: "Deliver", lessons: ["Prototype", "Handoff"] },
-    ],
-  },
-  {
-    id: "ai-product",
-    title: "Building AI Products",
-    instructor: "Karan Verma",
-    category: "AI",
-    price: 0,
-    rating: 4.95,
-    students: 3402,
-    lessons: 64,
-    hours: 30,
-    level: "Advanced",
-    cover: "from-indigo-500 to-blue-600",
-    blurb: "Take an idea to a deployed AI-native product. RAG, evals, agents, pricing and GTM.",
-    modules: [
-      { title: "Foundations", lessons: ["LLMs", "Prompting", "Evals"] },
-      { title: "Systems", lessons: ["RAG", "Agents", "Tooling"] },
-      { title: "Ship", lessons: ["Deploy", "Monitor", "Iterate"] },
     ],
   },
   {
@@ -146,6 +146,6 @@ export const liveClasses = [
 
 export const announcements = [
   { id: "n1", title: "New batch starts Monday", body: "Cohort 12 kicks off June 1 — onboarding pack inside." },
-  { id: "n2", title: "Fee reminder", body: "Installment 2 is due in 3 days. Auto-pay available." },
+  { id: "n2", title: "New course launched", body: "Exploring Vector Embeddings and RAG models is now live!" },
   { id: "n3", title: "Certificate ready", body: "Your UX Foundations certificate is generated." },
 ];

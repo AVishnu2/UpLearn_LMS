@@ -29,6 +29,7 @@ function FacultyDashboard() {
   const { rows: liveCourses } = useRealtimeTable<DbCourse>("courses");
   const canManage = role === "faculty" || role === "admin";
   const [profiles, setProfiles] = useState<any[]>([]);
+  const [allUserRoles, setAllUserRoles] = useState<any[]>([]);
   const [editingCourse, setEditingCourse] = useState<DbCourse | null>(null);
 
   // States for Assignments & Live Classes
@@ -46,6 +47,16 @@ function FacultyDashboard() {
       .then(({ data }) => {
         if (data) {
           setProfiles(data);
+        }
+      });
+
+    // Fetch user roles
+    supabase
+      .from("user_roles")
+      .select("*")
+      .then(({ data }) => {
+        if (data) {
+          setAllUserRoles(data);
         }
       });
 
@@ -350,6 +361,8 @@ function FacultyDashboard() {
 
       <ChatbotWidget
         profiles={profiles}
+        allUserRoles={allUserRoles}
+        currentUser={user}
         liveCourses={liveCourses}
         announcements={announcements}
         assignmentsList={assignmentsList}
@@ -749,6 +762,8 @@ function Meter({ label, value }: { label: string; value: number }) {
 
 interface ChatbotWidgetProps {
   profiles: any[];
+  allUserRoles: any[];
+  currentUser: any;
   liveCourses: any[];
   announcements: any[];
   assignmentsList: any[];
@@ -765,6 +780,8 @@ interface Message {
 
 function ChatbotWidget({
   profiles,
+  allUserRoles,
+  currentUser,
   liveCourses,
   announcements,
   assignmentsList,
@@ -819,16 +836,61 @@ function ChatbotWidget({
 
       // Smart keyword parsing engine
       if (
+        normalizedQuery.includes("faculty") ||
+        normalizedQuery.includes("teacher") ||
+        normalizedQuery.includes("instructor") ||
+        normalizedQuery.includes("professor") ||
+        normalizedQuery.includes("logged") ||
+        normalizedQuery.includes("session")
+      ) {
+        // Retrieve faculty lists by checking user roles table
+        const facultyRoles = allUserRoles.filter(r => r.role === "faculty");
+        const facultyIds = facultyRoles.map(r => r.user_id);
+        const registeredFaculty = profiles.filter(p => facultyIds.includes(p.id));
+        
+        // Find current logged in user details
+        const loggedInName = profiles.find(p => p.id === currentUser?.id)?.full_name || currentUser?.email || "Faculty Member";
+
+        const asksForNames = 
+          normalizedQuery.includes("name") || 
+          normalizedQuery.includes("list") || 
+          normalizedQuery.includes("who");
+
+        if (asksForNames) {
+          const namesList = registeredFaculty.length > 0
+            ? registeredFaculty.map((f, idx) => `  ${idx + 1}. **${f.full_name || "Anonymous Faculty"}**`).join("\n")
+            : "  *(No faculty profiles registered in directory)*";
+          responseText = `👨‍🏫 **Registered Faculty Directory:**\n\nHere are the registered faculty members:\n\n${namesList}\n\n*Current Logged In User:* **${loggedInName}**`;
+        } else {
+          responseText = `💼 **Faculty Directory & Status:**\n\n• **Registered Faculty:** ${registeredFaculty.length} teacher(s)\n• **Current Session:** You are logged in as **${loggedInName}**.\n\n*Faculty lists are synced in real-time with UpLearn's secure access control database.*`;
+        }
+      } else if (
         normalizedQuery.includes("student") ||
         normalizedQuery.includes("enrolled") ||
         normalizedQuery.includes("register") ||
         normalizedQuery.includes("who") ||
         normalizedQuery.includes("profile") ||
-        normalizedQuery.includes("user")
+        normalizedQuery.includes("user") ||
+        normalizedQuery.includes("name") ||
+        normalizedQuery.includes("list") ||
+        normalizedQuery.includes("their")
       ) {
-        responseText = `📊 **Student Enrollment Telemetry:**\n\n• **Total Registered Students:** ${profiles.length} student(s)\n• **Cohort Breakdowns:**\n${dynamicBatches
-          .map((b) => `  - **${b.name}:** ${b.students} students (Attendance: ${b.attendance}%)`)
-          .join("\n")}\n\n*All statistics are synced in real-time with the Supabase profiles database.*`;
+        const asksForNames = 
+          normalizedQuery.includes("name") || 
+          normalizedQuery.includes("list") || 
+          normalizedQuery.includes("their") || 
+          normalizedQuery.includes("who are");
+
+        if (asksForNames) {
+          const namesList = profiles.length > 0 
+            ? profiles.map((p, idx) => `  ${idx + 1}. **${p.full_name || "Anonymous User"}**`).join("\n")
+            : "  *(No students registered yet)*";
+          responseText = `👥 **Registered Student Directory:**\n\nHere are the names of the currently registered learners on UpLearnLMS:\n\n${namesList}\n\n*Total registered: ${profiles.length} student(s)*`;
+        } else {
+          responseText = `📊 **Student Enrollment Telemetry:**\n\n• **Total Registered Students:** ${profiles.length} student(s)\n• **Cohort Breakdowns:**\n${dynamicBatches
+            .map((b) => `  - **${b.name}:** ${b.students} students (Attendance: ${b.attendance}%)`)
+            .join("\n")}\n\n*All statistics are synced in real-time with the Supabase profiles database.*`;
+        }
       } else if (
         normalizedQuery.includes("cohort") ||
         normalizedQuery.includes("batch") ||

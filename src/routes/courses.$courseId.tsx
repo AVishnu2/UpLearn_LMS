@@ -907,13 +907,9 @@ function CourseDetail() {
  
         <aside className="lg:sticky lg:top-24 lg:h-fit">
           <div className="rounded-2xl border border-border bg-card p-6 shadow-lg">
-            <div className="text-sm text-muted-foreground">One-time payment</div>
-            <div className="mt-1 text-4xl font-semibold text-accent">{course.price === 0 ? "Free" : `₹${course.price.toLocaleString()}`}</div>
-            {course.price === 0 ? (
-              <div className="mt-1 text-xs text-accent font-medium">100% Free Lifetime Access</div>
-            ) : (
-              <div className="mt-1 text-xs text-muted-foreground">or 3 × ₹{Math.round(course.price / 3).toLocaleString()} (no cost EMI)</div>
-            )}
+            <div className="text-sm text-muted-foreground">Course Access</div>
+            <div className="mt-1 text-4xl font-semibold text-accent">Free</div>
+            <div className="mt-1 text-xs text-accent font-medium">100% Free Lifetime Access</div>
  
             {isEnrolled ? (
               <Link
@@ -939,9 +935,6 @@ function CourseDetail() {
                 )}
               </button>
             )}
-            <button className="mt-2 w-full rounded-xl border border-border py-3 text-sm font-semibold hover:bg-muted cursor-pointer">
-              Try first lesson free
-            </button>
  
             <ul className="mt-6 space-y-2 text-sm text-muted-foreground">
               {["Lifetime access", "Live cohort calls", "Auto-graded assignments", "Certificate on completion", "Cohort community"].map((b) => (

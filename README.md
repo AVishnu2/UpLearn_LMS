@@ -2,7 +2,7 @@
 
 > **Built for the Gradskills Hackathon**
 
-UpLearnLMS unifies **courses, live classes, assignments, fee collection, communities and certifications** for institutes, coaching centers and cohort programs — all in one beautiful, modern interface.
+UpLearnLMS unifies **courses, live classes, assignments, free course access, communities and certifications** for institutes, coaching centers and cohort programs — all in one beautiful, modern interface.
 
 ---
 
@@ -10,9 +10,9 @@ UpLearnLMS unifies **courses, live classes, assignments, fee collection, communi
 
 | Feature | Description |
 |---|---|
-| 📚 **Courses & Marketplace** | Publish, sell and manage digital courses with rich content, quizzes and certificates |
+| 📚 **Courses & Marketplace** | Publish and manage digital courses with rich content, quizzes and certificates |
 | 🎥 **Live Classes** | Schedule cohort calls, record sessions and stream straight to the student portal |
-| 💳 **Fees & Reminders** | Installments, auto-reminders and reconciliation — built for Indian institutes |
+| 🌟 **100% Free & Open Access** | No financial barriers, lifetime free courses, and zero hidden costs — built to democratize education |
 | 💬 **Community & Chats** | Cohort groups, DMs, announcements and parent updates in one inbox |
 | 🏆 **Auto Certificates** | Generate PDF certificates the moment a learner crosses the finish line |
 | 👥 **Batch Management** | Group students by batch, assign faculty, track attendance and progress |
