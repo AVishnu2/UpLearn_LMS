@@ -3,7 +3,8 @@ import { useState, useEffect } from "react";
 import { assignments as staticAssignments, liveClasses as staticLiveClasses, courses as staticCourses } from "@/data/lms";
 import { 
   BookOpen, Video, FileText, Bell, TrendingUp, Flame, 
-  ChevronRight, Calendar, User, Clock, Sparkles, Award
+  ChevronRight, Calendar, User, Clock, Sparkles, Award,
+  MessageSquare, X, Send, Bot, Cpu, Trash2
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useRealtimeTable, type DbAnnouncement, type DbCourse } from "@/hooks/useRealtime";
@@ -107,6 +108,101 @@ function StudentDashboard() {
   const { rows: dbCourses } = useRealtimeTable<DbCourse>("courses");
   const { rows: announcements } = useRealtimeTable<DbAnnouncement>("announcements");
   const name = user?.user_metadata?.full_name || user?.email?.split("@")[0] || "Learner";
+
+  // AI Student Assistant Chatbot States
+  const [isChatOpen, setIsChatOpen] = useState(false);
+  const [chatInput, setChatInput] = useState("");
+  const [chatMessages, setChatMessages] = useState<Array<{ sender: "user" | "bot"; text: string; timestamp: Date }>>([
+    { 
+      sender: "bot", 
+      text: `Hello ${name}! I am your UpLearn Student Copilot. 🤖\n\nI can help you check active courses, search your assignments queue, or find upcoming live cohort calls!`,
+      timestamp: new Date()
+    }
+  ]);
+
+  const handleQuery = (queryText: string) => {
+    if (!queryText.trim()) return;
+
+    const userMsg = {
+      sender: "user" as const,
+      text: queryText,
+      timestamp: new Date()
+    };
+
+    setChatMessages((prev) => [...prev, userMsg]);
+    setChatInput("");
+
+    setTimeout(() => {
+      const normalizedQuery = queryText.toLowerCase().trim();
+      let responseText = "";
+
+      if (
+        normalizedQuery.includes("thank") ||
+        normalizedQuery.includes("thx") ||
+        normalizedQuery.includes("thanks") ||
+        normalizedQuery.includes("appreciate")
+      ) {
+        responseText = `You are very welcome! 😊 It is my absolute pleasure to support your learning journey. Keep up the fantastic work on your ${streakCount}-day learning streak!`;
+      } else if (
+        normalizedQuery.includes("course") ||
+        normalizedQuery.includes("study") ||
+        normalizedQuery.includes("learn")
+      ) {
+        responseText = `📚 **Your Active Cohorts:**\n\nYou are enrolled in **${coursesWithProgress.length}** active program(s):\n${
+          coursesWithProgress.map((c, idx) => `  ${idx + 1}. **${c.title}** (${c.progress}% complete)`).join("\n")
+        }\n\nResume any course dynamically from your main dashboard cards!`;
+      } else if (
+        normalizedQuery.includes("assign") ||
+        normalizedQuery.includes("homework") ||
+        normalizedQuery.includes("task") ||
+        normalizedQuery.includes("due")
+      ) {
+        responseText = `📝 **Your Assignments Status:**\n\nYou have **${assignmentsDueCount}** active assignment(s) due:\n${
+          assignmentsList.map((a, idx) => `  - **${a.title}** (${a.course}) · Status: *${a.status}*`).join("\n")
+        }`;
+      } else if (
+        normalizedQuery.includes("class") ||
+        normalizedQuery.includes("live") ||
+        normalizedQuery.includes("stream") ||
+        normalizedQuery.includes("call")
+      ) {
+        responseText = `📅 **Upcoming Live Cohort Calls:**\n\nWe have **${liveClassesList.length}** live session(s) scheduled for this week:\n${
+          liveClassesList.map((l) => `  - **${l.title}**\n    *Instructor:* ${l.instructor}\n    *Time:* ${l.at}`).join("\n")
+        }`;
+      } else if (
+        normalizedQuery.includes("streak") ||
+        normalizedQuery.includes("fire") ||
+        normalizedQuery.includes("learning streak")
+      ) {
+        responseText = `🔥 **Your Learning Streak:**\n\nBrilliant work! You are currently on an active **${streakCount}-day learning streak**.\n\nKeep study session habits locked in by opening a course lesson daily!`;
+      } else if (
+        normalizedQuery.includes("hi") ||
+        normalizedQuery.includes("hello") ||
+        normalizedQuery.includes("hey") ||
+        normalizedQuery.includes("help")
+      ) {
+        responseText = `Hello! I'm your student AI assistant. 🤖\n\nI can help you review:\n- **Active Courses** (Type: *courses*)\n- **Assignments Queue** (Type: *assignments*)\n- **Live Classes** (Type: *live classes*)\n\nFeel free to write a question or try the quick action pills below!`;
+      } else {
+        responseText = `I couldn't find a direct correlation for that query. 😅\n\nFeel free to ask about your **courses**, **assignments**, or **live classes** scheduled this week!`;
+      }
+
+      setChatMessages((prev) => [
+        ...prev,
+        {
+          sender: "bot" as const,
+          text: responseText,
+          timestamp: new Date()
+        }
+      ]);
+    }, 400);
+  };
+
+  const studentPills = [
+    { label: "📚 My Courses", query: "my active enrolled courses list" },
+    { label: "📝 Assignments", query: "assignments status due" },
+    { label: "📅 Live Calls", query: "live cohort classes schedule" },
+    { label: "🔥 My Streak", query: "learning streak count details" }
+  ];
 
   const [enrolledIds, setEnrolledIds] = useState<string[]>([]);
   const [completedData, setCompletedData] = useState<Record<string, string[]>>({});
@@ -432,6 +528,122 @@ function StudentDashboard() {
         </aside>
 
       </div>
+
+      {/* Floating Student Toggle Button */}
+      <button
+        onClick={() => setIsChatOpen(!isChatOpen)}
+        className="fixed bottom-6 right-6 z-50 flex h-14 w-14 items-center justify-center rounded-full text-white shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition cursor-pointer"
+        style={{ background: "var(--gradient-primary)" }}
+        title="Toggle AI Assistant"
+      >
+        {isChatOpen ? <X className="h-6 w-6" /> : <MessageSquare className="h-6 w-6 animate-pulse" />}
+      </button>
+
+      {/* Student Chat Window Panel */}
+      {isChatOpen && (
+        <div className="fixed bottom-24 right-6 z-50 flex h-[500px] w-[380px] max-w-[calc(100vw-2rem)] flex-col rounded-2xl border border-border bg-card/95 backdrop-blur-md shadow-2xl overflow-hidden animate-in slide-in-from-bottom-5 duration-300 text-xs">
+          
+          {/* Header */}
+          <div className="flex items-center gap-3 px-4 py-3 text-white" style={{ background: "var(--gradient-primary)" }}>
+            <div className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/20">
+              <Bot className="h-5 w-5" />
+              <span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full border-2 border-card bg-emerald-500 animate-ping" />
+              <span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full border-2 border-card bg-emerald-500" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <h3 className="text-sm font-semibold flex items-center gap-1.5 leading-none">
+                Student AI Assistant <Sparkles className="h-3.5 w-3.5 text-yellow-300 fill-yellow-300" />
+              </h3>
+              <p className="mt-1 text-[11px] text-white/80 leading-none">UpLearn Student Copilot · Online</p>
+            </div>
+            <div className="flex items-center gap-1">
+              <button
+                onClick={() => {
+                  if (confirm("Clear chat history?")) {
+                    setChatMessages([
+                      { sender: "bot", text: `Hello ${name}! I am your UpLearn Student Copilot. 🤖\n\nI can help you check active courses, search your assignments queue, or find upcoming live cohort calls!`, timestamp: new Date() }
+                    ]);
+                  }
+                }}
+                title="Clear chat history"
+                className="rounded-lg p-1.5 hover:bg-white/10 transition cursor-pointer text-white border-none bg-transparent"
+              >
+                <Trash2 className="h-4 w-4" />
+              </button>
+              <button
+                onClick={() => setIsChatOpen(false)}
+                className="rounded-lg p-1.5 hover:bg-white/10 transition cursor-pointer text-white border-none bg-transparent"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+          </div>
+
+          {/* Chat Messages history */}
+          <div className="flex-1 overflow-y-auto p-4 space-y-4 font-semibold text-slate-700">
+            {chatMessages.map((m, idx) => (
+              <div
+                key={idx}
+                className={`flex flex-col gap-1 ${m.sender === "user" ? "items-end" : "items-start"}`}
+              >
+                <div
+                  className={`rounded-2xl p-3 leading-relaxed max-w-[85%] whitespace-pre-wrap shadow-sm border border-border/40 ${
+                    m.sender === "user"
+                      ? "bg-primary text-primary-foreground rounded-tr-none"
+                      : "bg-slate-100 text-slate-600 rounded-tl-none"
+                  }`}
+                >
+                  {m.text}
+                </div>
+                <span className="text-[9px] text-muted-foreground px-1">
+                  {m.timestamp.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                </span>
+              </div>
+            ))}
+          </div>
+
+          {/* Action Pills */}
+          <div className="border-t border-border/60 bg-muted/30 px-3 py-2 shrink-0">
+            <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-none">
+              {studentPills.map((pill) => (
+                <button
+                  key={pill.label}
+                  onClick={() => handleQuery(pill.query)}
+                  className="shrink-0 rounded-full border border-border/80 bg-card hover:bg-primary/10 hover:border-primary/40 px-2.5 py-1 text-[10px] font-bold text-muted-foreground hover:text-primary transition cursor-pointer"
+                >
+                  {pill.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Form Input */}
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleQuery(chatInput);
+            }}
+            className="flex items-center gap-2 border-t border-border/60 bg-card p-3 shrink-0"
+          >
+            <input
+              type="text"
+              value={chatInput}
+              onChange={(e) => setChatInput(e.target.value)}
+              placeholder="Ask about active courses, assignments..."
+              className="flex-1 rounded-xl border border-border bg-background px-3.5 py-2 text-xs outline-none focus:border-primary transition"
+            />
+            <button
+              type="submit"
+              disabled={!chatInput.trim()}
+              className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary text-primary-foreground disabled:opacity-40 transition cursor-pointer shrink-0 border-none bg-transparent"
+              style={chatInput.trim() ? { background: "var(--gradient-primary)" } : undefined}
+            >
+              <Send className="h-3.5 w-3.5" />
+            </button>
+          </form>
+
+        </div>
+      )}
     </main>
   );
 }
