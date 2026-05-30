@@ -836,6 +836,13 @@ function ChatbotWidget({
 
       // Smart keyword parsing engine
       if (
+        normalizedQuery.includes("thank") ||
+        normalizedQuery.includes("thx") ||
+        normalizedQuery.includes("thanks") ||
+        normalizedQuery.includes("appreciate")
+      ) {
+        responseText = `You are very welcome! 😊 It is my absolute pleasure to assist you.\n\nLet me know if you need any other telemetry reports or statistics about active cohorts, courses, or assignments!`;
+      } else if (
         normalizedQuery.includes("faculty") ||
         normalizedQuery.includes("teacher") ||
         normalizedQuery.includes("instructor") ||

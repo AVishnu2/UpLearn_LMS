@@ -1,7 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { assignments as staticAssignments, liveClasses as staticLiveClasses, courses as staticCourses } from "@/data/lms";
-import { BookOpen, Video, FileText, Bell, TrendingUp, Flame } from "lucide-react";
+import { 
+  BookOpen, Video, FileText, Bell, TrendingUp, Flame, 
+  ChevronRight, Calendar, User, Clock, Sparkles, Award
+} from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useRealtimeTable, type DbAnnouncement, type DbCourse } from "@/hooks/useRealtime";
 
@@ -198,143 +201,236 @@ function StudentDashboard() {
   const avgProgress = activeCoursesCount > 0 ? Math.round(totalProgressSum / activeCoursesCount) : 0;
 
   return (
-    <main className="mx-auto max-w-7xl px-6 py-10">
-      <header className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <p className="text-sm text-muted-foreground">Welcome back,</p>
-          <h1 className="text-3xl font-semibold tracking-tight md:text-4xl">{name} 👋</h1>
+    <main className="mx-auto max-w-7xl px-6 py-12">
+      
+      {/* Dynamic welcome header */}
+      <header className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between border-b border-slate-200/50 pb-8">
+        <div className="flex items-center gap-4">
+          <div className="h-16 w-16 rounded-2xl bg-gradient-to-tr from-primary to-accent flex items-center justify-center text-white text-2xl font-bold shadow-md shadow-primary/10">
+            {name.charAt(0).toUpperCase()}
+          </div>
+          <div>
+            <p className="text-xs uppercase font-extrabold tracking-wider text-slate-400 leading-none">Welcome back,</p>
+            <h1 className="text-3xl font-black tracking-tight text-slate-900 mt-1.5">{name} 👋</h1>
+          </div>
         </div>
-        <div className="flex items-center gap-2 rounded-full border border-border bg-card px-4 py-2 text-sm">
-          <Flame className="h-4 w-4 text-orange-400" /> {streakCount}-day learning streak
+        <div className="flex items-center gap-2 rounded-2xl border border-orange-100 bg-orange-50/50 px-4 py-2.5 text-xs font-bold text-orange-600 shadow-sm animate-float">
+          <Flame className="h-4.5 w-4.5 text-orange-500 fill-orange-500 animate-pulse" /> {streakCount}-day learning streak
         </div>
       </header>
 
-      <div className="mt-8 grid gap-4 md:grid-cols-4">
+      {/* KPI Cards Row */}
+      <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
         {[
-          { icon: BookOpen, k: String(activeCoursesCount), v: "Active courses" },
-          { icon: FileText, k: String(assignmentsDueCount), v: "Assignments due" },
-          { icon: Video, k: String(liveThisWeekCount), v: "Live this week" },
-          { icon: TrendingUp, k: `${avgProgress}%`, v: "Avg progress" },
-        ].map((s) => (
-          <div key={s.v} className="rounded-2xl border border-border bg-card p-5">
-            <s.icon className="h-5 w-5 text-primary" />
-            <div className="mt-4 text-2xl font-semibold">{s.k}</div>
-            <div className="text-sm text-muted-foreground">{s.v}</div>
-          </div>
-        ))}
+          { 
+            icon: BookOpen, 
+            k: String(activeCoursesCount), 
+            v: "Active courses",
+            detail: "Enrolled cohorts",
+            iconBg: "bg-blue-50 text-blue-600 border border-blue-100"
+          },
+          { 
+            icon: FileText, 
+            k: String(assignmentsDueCount), 
+            v: "Assignments due",
+            detail: "Requires review",
+            iconBg: "bg-amber-50 text-amber-600 border border-amber-100"
+          },
+          { 
+            icon: Video, 
+            k: String(liveThisWeekCount), 
+            v: "Live this week",
+            detail: "Interactive streams",
+            iconBg: "bg-emerald-50 text-emerald-600 border border-emerald-100"
+          },
+          { 
+            icon: TrendingUp, 
+            k: `${avgProgress}%`, 
+            v: "Avg progress",
+            detail: "Cohort standing",
+            iconBg: "bg-purple-50 text-purple-600 border border-purple-100"
+          },
+        ].map((s) => {
+          const Icon = s.icon;
+          return (
+            <div 
+              key={s.v} 
+              className="rounded-3xl border border-slate-200/60 bg-white p-6 shadow-sm hover:shadow-md hover:border-slate-300 transition-all duration-300 group flex flex-col justify-between"
+            >
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">{s.v}</span>
+                <span className={`p-2.5 rounded-2xl text-xs shrink-0 ${s.iconBg}`}>
+                  <Icon className="h-4.5 w-4.5" />
+                </span>
+              </div>
+              <div className="mt-4">
+                <div className="text-3xl font-black text-slate-900 leading-none font-mono">{s.k}</div>
+                <div className="text-[10px] text-slate-400 mt-1 font-semibold">{s.detail}</div>
+              </div>
+            </div>
+          );
+        })}
       </div>
 
-      <div className="mt-10 grid gap-6 lg:grid-cols-3">
-        <section className="lg:col-span-2">
-          <h2 className="mb-4 text-xl font-semibold">Continue learning</h2>
-          {coursesWithProgress.length === 0 && (
-            <p className="rounded-xl border border-border bg-card p-4 text-sm text-muted-foreground">No active courses. Find exciting cohort programs in the marketplace!</p>
-          )}
-          <div className="space-y-3">
-            {coursesWithProgress.map((c) => {
-              return (
-                <Link
-                  key={c.id}
-                  to="/courses/$courseId"
-                  params={{ courseId: c.id }}
-                  className="flex gap-4 rounded-2xl border border-border bg-card p-4 transition duration-300 hover:border-primary/50 hover:-translate-y-0.5 hover:shadow-md group"
-                >
-                  <div className="relative h-20 w-28 shrink-0 overflow-hidden rounded-xl">
-                    <img
-                      src={getCourseImage(c.category, c.title)}
-                      alt={c.title}
-                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
-                  </div>
-                  <div className="flex-1">
-                    <div className="text-xs uppercase tracking-wider text-muted-foreground">{c.category}</div>
-                    <div className="mt-1 font-semibold">{c.title}</div>
-                    <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-muted">
-                      <div className="h-full rounded-full" style={{ width: `${c.progress}%`, background: "var(--gradient-primary)" }} />
-                    </div>
-                    <div className="mt-1 text-xs text-muted-foreground">{c.progress}% complete</div>
-                  </div>
-                </Link>
-              );
-            })}
+      {/* Main Grid area */}
+      <div className="mt-12 grid gap-8 lg:grid-cols-3">
+        
+        {/* Left Column (Courses and Assignments) */}
+        <section className="lg:col-span-2 space-y-8">
+          
+          {/* Courses Row */}
+          <div>
+            <h2 className="mb-4 text-lg font-black text-slate-800 flex items-center gap-2">
+              <span className="h-2 w-2 rounded-full bg-primary" />
+              Continue learning
+            </h2>
+            
+            {coursesWithProgress.length === 0 ? (
+              <p className="rounded-2xl border border-slate-200 bg-white p-5 text-sm text-slate-400 text-center font-medium">No active courses. Find exciting cohort programs in the marketplace!</p>
+            ) : (
+              <div className="space-y-4">
+                {coursesWithProgress.map((c) => {
+                  return (
+                    <Link
+                      key={c.id}
+                      to="/courses/$courseId"
+                      params={{ courseId: c.id }}
+                      className="flex gap-4 rounded-3xl border border-slate-200/60 bg-white p-5 transition duration-300 hover:border-slate-300 hover:shadow-md group relative"
+                    >
+                      <div className="relative h-20 w-28 shrink-0 overflow-hidden rounded-2xl shadow-sm bg-slate-100 border border-slate-100">
+                        <img
+                          src={getCourseImage(c.category, c.title)}
+                          alt={c.title}
+                          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/20 to-transparent" />
+                      </div>
+                      <div className="flex-1 min-w-0 flex flex-col justify-between">
+                        <div>
+                          <div className="text-[9px] uppercase font-bold tracking-wider text-primary">{c.category}</div>
+                          <div className="mt-1 font-black text-sm text-slate-900 truncate leading-snug">{c.title}</div>
+                        </div>
+                        <div>
+                          <div className="mt-3.5 h-1.5 w-full overflow-hidden rounded-full bg-slate-100 border border-slate-50">
+                            <div className="h-full rounded-full bg-gradient-to-r from-primary to-accent" style={{ width: `${c.progress}%` }} />
+                          </div>
+                          <div className="mt-1.5 flex items-center justify-between text-[10px] text-slate-400 font-bold">
+                            <span>{c.progress}% complete</span>
+                            <span className="text-primary font-black uppercase tracking-wider group-hover:translate-x-0.5 transition-transform flex items-center gap-0.5">
+                              Resume Course <ChevronRight className="h-3.5 w-3.5" />
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </Link>
+                  );
+                })}
+              </div>
+            )}
           </div>
 
-          <h2 className="mb-4 mt-10 text-xl font-semibold">Assignments</h2>
-          <div className="overflow-hidden rounded-2xl border border-border bg-card">
-            <table className="w-full text-sm">
-              <thead className="bg-muted/50 text-left text-xs uppercase tracking-wider text-muted-foreground">
-                <tr>
-                  <th className="px-5 py-3">Title</th>
-                  <th className="px-5 py-3">Course</th>
-                  <th className="px-5 py-3">Due</th>
-                  <th className="px-5 py-3">Status</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border">
-                {assignmentsList.length === 0 && (
-                  <tr>
-                    <td colSpan={4} className="px-5 py-4 text-center text-muted-foreground text-xs">No assignments assigned. You are all caught up!</td>
+          {/* Assignments table widget */}
+          <div>
+            <h2 className="mb-4 text-lg font-black text-slate-800 flex items-center gap-2">
+              <span className="h-2 w-2 rounded-full bg-primary" />
+              Assignments Hub
+            </h2>
+            <div className="overflow-hidden rounded-3xl border border-slate-200/60 bg-white shadow-sm">
+              <table className="w-full text-xs text-left border-collapse">
+                <thead>
+                  <tr className="bg-slate-50/70 border-b border-slate-100 text-slate-400 font-bold uppercase tracking-wider text-[9px]">
+                    <th className="px-5 py-3.5">Title</th>
+                    <th className="px-5 py-3.5">Course Cohort</th>
+                    <th className="px-5 py-3.5">Due date</th>
+                    <th className="px-5 py-3.5 text-right">Status</th>
                   </tr>
-                )}
-                {assignmentsList.map((a) => (
-                  <tr key={a.id}>
-                    <td className="px-5 py-3 font-medium">{a.title}</td>
-                    <td className="px-5 py-3 text-muted-foreground">{a.course}</td>
-                    <td className="px-5 py-3 text-muted-foreground">{a.dueIn}</td>
-                    <td className="px-5 py-3">
-                      <span
-                        className={`rounded-full px-2.5 py-1 text-xs ${
-                          a.status === "graded"
-                            ? "bg-accent/20 text-accent"
-                            : a.status === "in-progress"
-                              ? "bg-primary/20 text-primary"
-                              : "bg-muted text-muted-foreground"
-                        }`}
-                      >
-                        {a.status === "graded" ? `Graded · ${a.grade || "A"}` : a.status}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="divide-y divide-slate-100 font-semibold text-slate-600">
+                  {assignmentsList.length === 0 && (
+                    <tr>
+                      <td colSpan={4} className="px-5 py-6 text-center text-slate-400 text-[11px]">No assignments assigned. You are all caught up!</td>
+                    </tr>
+                  )}
+                  {assignmentsList.map((a) => (
+                    <tr key={a.id} className="hover:bg-slate-50/20 transition duration-150">
+                      <td className="px-5 py-3.5 font-bold text-slate-800">{a.title}</td>
+                      <td className="px-5 py-3.5 text-slate-500">{a.course}</td>
+                      <td className="px-5 py-3.5 text-slate-400 font-mono">{a.dueIn}</td>
+                      <td className="px-5 py-3.5 text-right">
+                        <span
+                          className={`inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${
+                            a.status === "graded"
+                              ? "bg-emerald-50 text-emerald-600 border-emerald-100"
+                              : a.status === "in-progress"
+                                ? "bg-amber-50 text-amber-600 border-amber-100"
+                                : "bg-slate-100 text-slate-500 border-slate-200/50"
+                          }`}
+                        >
+                          {a.status === "graded" ? `Graded · ${a.grade || "A"}` : a.status}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         </section>
 
+        {/* Right column (live calls and bulletins sidebar) */}
         <aside className="space-y-6">
-          <div className="rounded-2xl border border-border bg-card p-5">
-            <div className="flex items-center gap-2 text-sm font-semibold"><Video className="h-4 w-4 text-primary" /> Upcoming live classes</div>
-            <ul className="mt-4 space-y-4">
+          
+          {/* Live Classes Card */}
+          <div className="rounded-3xl border border-slate-200/60 bg-white p-5 shadow-sm">
+            <div className="flex items-center gap-2 border-b border-slate-100 pb-3 mb-4">
+              <span className="p-1.5 rounded-xl bg-primary/10 text-primary">
+                <Video className="h-4.5 w-4.5" />
+              </span>
+              <h3 className="text-xs font-bold text-slate-800">Upcoming Live Cohort Calls</h3>
+            </div>
+            <ul className="space-y-3.5">
               {liveClassesList.length === 0 && (
-                <li className="text-xs text-muted-foreground py-2">No live classes scheduled for this week.</li>
+                <li className="text-xs text-slate-400 py-3 text-center font-medium">No live classes scheduled for this week.</li>
               )}
               {liveClassesList.map((l) => (
-                <li key={l.id} className="border-l-2 border-primary/60 pl-3">
-                  <div className="text-xs text-muted-foreground">{l.at}</div>
-                  <div className="mt-0.5 text-sm font-medium">{l.title}</div>
-                  <div className="text-xs text-muted-foreground">{l.instructor}</div>
+                <li key={l.id} className="border-l-3 border-primary/50 pl-3.5 py-0.5 flex flex-col justify-center">
+                  <div className="text-[10px] text-slate-400 font-mono font-bold">{l.at}</div>
+                  <div className="mt-0.5 text-xs font-extrabold text-slate-800 truncate">{l.title}</div>
+                  <div className="text-[10px] text-slate-400 font-medium">{l.instructor}</div>
                 </li>
               ))}
             </ul>
           </div>
 
-          <div className="rounded-2xl border border-border bg-card p-5">
-            <div className="flex items-center gap-2 text-sm font-semibold"><Bell className="h-4 w-4 text-primary" /> Announcements <span className="ml-auto inline-flex h-2 w-2 animate-pulse rounded-full bg-accent" /></div>
+          {/* Bulletin announcements */}
+          <div className="rounded-3xl border border-slate-200/60 bg-white p-5 shadow-sm">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
+              <div className="flex items-center gap-2">
+                <span className="p-1.5 rounded-xl bg-accent/10 text-accent">
+                  <Bell className="h-4.5 w-4.5" />
+                </span>
+                <h3 className="text-xs font-bold text-slate-800">Faculty Bulletins</h3>
+              </div>
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-accent"></span>
+              </span>
+            </div>
             {announcements.length === 0 ? (
-              <p className="mt-4 text-xs text-muted-foreground">No announcements yet — faculty posts will appear here instantly.</p>
+              <p className="text-xs text-slate-400 py-3 text-center font-medium">No bulletins posted this week.</p>
             ) : (
-              <ul className="mt-4 space-y-4">
-                {announcements.slice(0, 6).map((n) => (
-                  <li key={n.id}>
-                    <div className="text-sm font-medium">{n.title}</div>
-                    <div className="text-xs text-muted-foreground">{n.body}</div>
+              <ul className="space-y-3.5">
+                {announcements.slice(0, 4).map((n) => (
+                  <li key={n.id} className="p-3 bg-slate-50 border border-slate-100/50 rounded-2xl">
+                    <div className="text-xs font-bold text-slate-800 leading-tight">{n.title}</div>
+                    <div className="mt-1 text-[10px] text-slate-400 font-medium leading-relaxed">{n.body}</div>
                   </li>
                 ))}
               </ul>
             )}
           </div>
         </aside>
+
       </div>
     </main>
   );
