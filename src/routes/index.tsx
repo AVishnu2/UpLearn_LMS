@@ -1,5 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, BookOpen, CreditCard, MessageSquare, Video, Award, Users, Sparkles, CheckCircle2 } from "lucide-react";
+import { 
+  ArrowRight, BookOpen, CreditCard, MessageSquare, Video, Award, Users, Sparkles, CheckCircle2,
+  Cpu, CheckSquare, Compass, Sliders, Zap, UserCheck, Trophy, Smartphone, Mail
+} from "lucide-react";
 import { courses } from "@/data/lms";
 
 import aiCover from "@/assets/images/ai_cover.png";
@@ -44,12 +47,15 @@ export const Route = createFileRoute("/")({
 });
 
 const features = [
-  { icon: BookOpen, title: "Courses & Marketplace", desc: "Publish and manage digital courses with rich content, quizzes and certificates." },
-  { icon: Video, title: "Live Classes", desc: "Schedule cohort calls, record sessions and stream straight to the student portal." },
-  { icon: Sparkles, title: "Free & Open Access", desc: "100% free courses, self-paced learning, and zero hidden costs — designed to democratize education." },
-  { icon: MessageSquare, title: "Community & Chats", desc: "Cohort groups, DMs, announcements and parent updates in one inbox." },
-  { icon: Award, title: "Auto Certificates", desc: "Generate PDF certificates the moment a learner crosses the finish line." },
-  { icon: Users, title: "Batch Management", desc: "Group students by batch, assign faculty, track attendance and progress." },
+  { icon: Cpu, title: "AI Study Assistant", desc: "Get 24/7 instant learning help, prompt exercises, and code sandbox evaluations from our context-aware AI Copilot." },
+  { icon: CheckSquare, title: "AI-Powered Assignment Evaluation", desc: "Instantly auto-grade coding assignments, essays, and quizzes with detailed, qualitative feedback breakdowns." },
+  { icon: Compass, title: "Personalized Learning Recommendations", desc: "Our RAG systems scan conceptual weaknesses and dynamically inject matching vector-indexed study resources." },
+  { icon: Sliders, title: "Student Performance Prediction", desc: "Leverage predictive Bayesian analytics to audit batch performance, forecast scores, and signal dropout-risk thresholds." },
+  { icon: Zap, title: "AI Course Content Generator", desc: "Allows faculty to immediately prompt and export entire modular course syllabi, exercises, and quizzes." },
+  { icon: UserCheck, title: "Smart Attendance Monitoring", desc: "Automate direct student session tracking, active study hours analytics, and live cohort room participation logs." },
+  { icon: Trophy, title: "Gamification & Leaderboards", desc: "Maintain learning streaks, compile course XP, and display live peer leaderboards to drive continuous engagement." },
+  { icon: Smartphone, title: "Mobile-First Learning Experience", desc: "Fully responsive, premium fluid layout engineered to run beautifully on all modern smartphones and tablets." },
+  { icon: Mail, title: "WhatsApp & Email Automation", desc: "Keep cohort nodes and parent circles synced with automated progress notifications and custom SMS milestones." },
 ];
 
 function Home() {
