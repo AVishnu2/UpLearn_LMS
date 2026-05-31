@@ -137,6 +137,16 @@ function FacultyDashboard() {
     );
   }
 
+  if (role === "student") {
+    return (
+      <main className="mx-auto max-w-md px-6 py-20 text-center">
+        <h1 className="text-2xl font-bold text-destructive">Access Denied</h1>
+        <p className="mt-2 text-sm text-muted-foreground">This portal is restricted to faculty members only.</p>
+        <Link to="/dashboard" className="mt-6 inline-flex rounded-xl px-5 py-3 text-sm font-semibold text-primary-foreground" style={{ background: "var(--gradient-primary)" }}>Go to Student Dashboard</Link>
+      </main>
+    );
+  }
+
   return (
     <main className="mx-auto max-w-7xl px-6 py-10">
       <header>
@@ -191,13 +201,13 @@ function FacultyDashboard() {
                     <th className="px-5 py-3">Course</th>
                     <th className="px-5 py-3">Due</th>
                     <th className="px-5 py-3">Status</th>
-                    <th className="px-5 py-3 text-right">Actions</th>
+                    {canManage && <th className="px-5 py-3 text-right">Actions</th>}
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border">
                   {assignmentsList.length === 0 && (
                     <tr>
-                      <td colSpan={5} className="px-5 py-4 text-center text-muted-foreground text-xs">No assignments scheduled yet.</td>
+                      <td colSpan={canManage ? 5 : 4} className="px-5 py-4 text-center text-muted-foreground text-xs">No assignments scheduled yet.</td>
                     </tr>
                   )}
                   {assignmentsList.map((a) => (
@@ -212,28 +222,30 @@ function FacultyDashboard() {
                           {a.status === "graded" ? `Graded · ${a.grade || "A"}` : a.status}
                         </span>
                       </td>
-                      <td className="px-5 py-3 text-right">
-                        <div className="flex gap-2 justify-end">
-                          <button
-                            onClick={() => setEditingAssignment(a)}
-                            className="text-xs text-muted-foreground hover:text-primary transition cursor-pointer"
-                          >
-                            Edit
-                          </button>
-                          <button
-                            onClick={() => {
-                              if (confirm(`Are you sure you want to delete assignment "${a.title}"?`)) {
-                                const updated = assignmentsList.filter(item => item.id !== a.id);
-                                setAssignmentsList(updated);
-                                localStorage.setItem("uplearn_assignments", JSON.stringify(updated));
-                              }
-                            }}
-                            className="text-xs text-muted-foreground hover:text-destructive transition cursor-pointer"
-                          >
-                            Delete
-                          </button>
-                        </div>
-                      </td>
+                      {canManage && (
+                        <td className="px-5 py-3 text-right">
+                          <div className="flex gap-2 justify-end">
+                            <button
+                              onClick={() => setEditingAssignment(a)}
+                              className="text-xs text-muted-foreground hover:text-primary transition cursor-pointer"
+                            >
+                              Edit
+                            </button>
+                            <button
+                              onClick={() => {
+                                if (confirm(`Are you sure you want to delete assignment "${a.title}"?`)) {
+                                  const updated = assignmentsList.filter(item => item.id !== a.id);
+                                  setAssignmentsList(updated);
+                                  localStorage.setItem("uplearn_assignments", JSON.stringify(updated));
+                                }
+                              }}
+                              className="text-xs text-muted-foreground hover:text-destructive transition cursor-pointer"
+                            >
+                              Delete
+                            </button>
+                          </div>
+                        </td>
+                      )}
                     </tr>
                   ))}
                 </tbody>
@@ -252,13 +264,13 @@ function FacultyDashboard() {
                     <th className="px-5 py-3">Course</th>
                     <th className="px-5 py-3">Timing</th>
                     <th className="px-5 py-3">Instructor</th>
-                    <th className="px-5 py-3 text-right">Actions</th>
+                    {canManage && <th className="px-5 py-3 text-right">Actions</th>}
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border">
                   {liveClassesList.length === 0 && (
                     <tr>
-                      <td colSpan={5} className="px-5 py-4 text-center text-muted-foreground text-xs">No live classes scheduled.</td>
+                      <td colSpan={canManage ? 5 : 4} className="px-5 py-4 text-center text-muted-foreground text-xs">No live classes scheduled.</td>
                     </tr>
                   )}
                   {liveClassesList.map((l) => (
@@ -267,28 +279,30 @@ function FacultyDashboard() {
                       <td className="px-5 py-3 text-muted-foreground text-xs">{l.course}</td>
                       <td className="px-5 py-3 text-muted-foreground text-xs">{l.at}</td>
                       <td className="px-5 py-3 text-muted-foreground text-xs">{l.instructor}</td>
-                      <td className="px-5 py-3 text-right">
-                        <div className="flex gap-2 justify-end">
-                          <button
-                            onClick={() => setEditingLiveClass(l)}
-                            className="text-xs text-muted-foreground hover:text-primary transition cursor-pointer"
-                          >
-                            Edit
-                          </button>
-                          <button
-                            onClick={() => {
-                              if (confirm(`Are you sure you want to delete live class "${l.title}"?`)) {
-                                const updated = liveClassesList.filter(item => item.id !== l.id);
-                                setLiveClassesList(updated);
-                                localStorage.setItem("uplearn_live_classes", JSON.stringify(updated));
-                              }
-                            }}
-                            className="text-xs text-muted-foreground hover:text-destructive transition cursor-pointer"
-                          >
-                            Delete
-                          </button>
-                        </div>
-                      </td>
+                      {canManage && (
+                        <td className="px-5 py-3 text-right">
+                          <div className="flex gap-2 justify-end">
+                            <button
+                              onClick={() => setEditingLiveClass(l)}
+                              className="text-xs text-muted-foreground hover:text-primary transition cursor-pointer"
+                            >
+                              Edit
+                            </button>
+                            <button
+                              onClick={() => {
+                                if (confirm(`Are you sure you want to delete live class "${l.title}"?`)) {
+                                  const updated = liveClassesList.filter(item => item.id !== l.id);
+                                  setLiveClassesList(updated);
+                                  localStorage.setItem("uplearn_live_classes", JSON.stringify(updated));
+                                }
+                              }}
+                              className="text-xs text-muted-foreground hover:text-destructive transition cursor-pointer"
+                            >
+                              Delete
+                            </button>
+                          </div>
+                        </td>
+                      )}
                     </tr>
                   ))}
                 </tbody>

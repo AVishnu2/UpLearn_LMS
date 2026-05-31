@@ -23,17 +23,24 @@ export function SiteHeader() {
           <span className="text-lg font-semibold tracking-tight">UpLearn<span className="text-muted-foreground">LMS</span></span>
         </Link>
         <nav className="hidden items-center gap-1 md:flex">
-          {nav.map((n) => (
-            <Link
-              key={n.to}
-              to={n.to}
-              className="rounded-lg px-3 py-2 text-sm text-muted-foreground transition hover:bg-muted hover:text-foreground"
-              activeProps={{ className: "rounded-lg px-3 py-2 text-sm text-foreground bg-muted" }}
-              activeOptions={{ exact: n.to === "/" }}
-            >
-              {n.label}
-            </Link>
-          ))}
+          {nav
+            .filter((n) => {
+              if (!user) return true;
+              if (role === "student" && n.to === "/faculty") return false;
+              if (role === "faculty" && n.to === "/dashboard") return false;
+              return true;
+            })
+            .map((n) => (
+              <Link
+                key={n.to}
+                to={n.to}
+                className="rounded-lg px-3 py-2 text-sm text-muted-foreground transition hover:bg-muted hover:text-foreground"
+                activeProps={{ className: "rounded-lg px-3 py-2 text-sm text-foreground bg-muted" }}
+                activeOptions={{ exact: n.to === "/" }}
+              >
+                {n.label}
+              </Link>
+            ))}
         </nav>
         {user ? (
           <div className="flex items-center gap-2">
