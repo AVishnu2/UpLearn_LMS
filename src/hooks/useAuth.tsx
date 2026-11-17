@@ -26,11 +26,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // Resolve user's actual role from metadata or user_roles table
   async function resolveRole(u: User): Promise<Role> {
-    // 1. Check user metadata
-    if (u.user_metadata?.role && ["student", "faculty", "admin"].includes(u.user_metadata.role)) {
-      return u.user_metadata.role as Role;
-    }
-    // 2. Query user_roles table
+    // 1. Query user_roles table first (most authoritative source)
     try {
       const { data } = await supabase.from("user_roles").select("role").eq("user_id", u.id);
       const roles = (data ?? []).map((r: any) => r.role as Role);
@@ -39,6 +35,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (roles.includes("student")) return "student";
     } catch {
       // ignore
+    }
+    // 2. Check user metadata (raw_user_meta_data populated by trigger)
+    const metaRole = u.user_metadata?.role ?? u.app_metadata?.role;
+    if (metaRole && ["student", "faculty", "admin"].includes(metaRole)) {
+      return metaRole as Role;
     }
     // 3. Fallback to cached role
     const cached = localStorage.getItem(STORAGE_KEY_ROLE) as Role | null;
@@ -142,7 +143,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setRole(signupRole);
         localStorage.setItem(STORAGE_KEY_ROLE, signupRole);
 
-        // If session was not returned immediately, sign in
+        // If session was not returned immediately, sign in to get a valid session
         if (!data.session) {
           const loginRes = await supabase.auth.signInWithPassword({
             email: cleanEmail,
@@ -150,19 +151,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           });
           if (loginRes.data?.session) {
             setSession(loginRes.data.session);
-            setUser(loginRes.data.user);
+            setUser(loginRes.data.user!);
           }
         }
 
-        // Ensure user_roles has the role
-        try {
-          await supabase.from("user_roles").upsert({
-            user_id: data.user.id,
-            role: signupRole,
-          });
-        } catch {}
+        // Try to ensure user_roles has the correct role (the DB trigger also does this).
+        // This may fail silently if no RLS INSERT policy exists – that's fine, the
+        // trigger already inserted the row using SECURITY DEFINER.
+        await supabase.from("user_roles").upsert({
+          user_id: data.user.id,
+          role: signupRole,
+        }).then(() => {}).catch(() => {});
 
-        return { user: data.user, role: signupRole };
+        // Re-resolve role from DB to confirm what was stored (trigger may have run)
+        const resolvedRole = await resolveRole(data.user);
+        setRole(resolvedRole);
+        localStorage.setItem(STORAGE_KEY_ROLE, resolvedRole);
+
+        return { user: data.user, role: resolvedRole };
       }
 
       return { error: "Registration could not be completed. Please try again." };
