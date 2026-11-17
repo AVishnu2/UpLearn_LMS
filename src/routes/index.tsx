@@ -98,9 +98,21 @@ function Home() {
             </Link>
             <Link
               to="/dashboard"
-              className="inline-flex items-center gap-2 rounded-xl border border-border bg-card/60 px-5 py-3 text-sm font-semibold backdrop-blur transition hover:bg-card"
+              className="inline-flex items-center gap-2 rounded-xl border border-blue-500/30 bg-blue-500/10 px-4 py-3 text-sm font-semibold text-blue-600 dark:text-blue-400 backdrop-blur transition hover:bg-blue-500/20"
             >
-              See student demo
+              Student Portal
+            </Link>
+            <Link
+              to="/faculty"
+              className="inline-flex items-center gap-2 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm font-semibold text-emerald-600 dark:text-emerald-400 backdrop-blur transition hover:bg-emerald-500/20"
+            >
+              Faculty Portal
+            </Link>
+            <Link
+              to="/admin"
+              className="inline-flex items-center gap-2 rounded-xl border border-purple-500/30 bg-purple-500/10 px-4 py-3 text-sm font-semibold text-purple-600 dark:text-purple-400 backdrop-blur transition hover:bg-purple-500/20"
+            >
+              Admin Portal
             </Link>
           </div>
 

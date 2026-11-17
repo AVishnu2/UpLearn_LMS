@@ -130,9 +130,11 @@ function FacultyDashboard() {
   if (!user) {
     return (
       <main className="mx-auto max-w-md px-6 py-20 text-center">
-        <h1 className="text-2xl font-semibold">Faculty portal</h1>
-        <p className="mt-2 text-sm text-muted-foreground">Please sign in to access faculty tools.</p>
-        <Link to="/auth" className="mt-6 inline-flex rounded-xl px-5 py-3 text-sm font-semibold text-primary-foreground" style={{ background: "var(--gradient-primary)" }}>Sign in</Link>
+        <h1 className="text-2xl font-bold tracking-tight">Faculty Portal</h1>
+        <p className="mt-2 text-sm text-muted-foreground">Please sign in with a faculty account to access instructor tools and cohorts.</p>
+        <div className="mt-6">
+          <Link to="/auth" className="inline-flex rounded-xl px-5 py-3 text-sm font-semibold text-primary-foreground shadow-md" style={{ background: "var(--gradient-primary)" }}>Sign In to Faculty Account</Link>
+        </div>
       </main>
     );
   }
@@ -140,9 +142,18 @@ function FacultyDashboard() {
   if (role === "student") {
     return (
       <main className="mx-auto max-w-md px-6 py-20 text-center">
-        <h1 className="text-2xl font-bold text-destructive">Access Denied</h1>
-        <p className="mt-2 text-sm text-muted-foreground">This portal is restricted to faculty members only.</p>
-        <Link to="/dashboard" className="mt-6 inline-flex rounded-xl px-5 py-3 text-sm font-semibold text-primary-foreground" style={{ background: "var(--gradient-primary)" }}>Go to Student Dashboard</Link>
+        <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-destructive/10 text-destructive">
+          <AlertCircle className="h-7 w-7" />
+        </div>
+        <h1 className="text-2xl font-bold text-foreground">Access Restricted</h1>
+        <p className="mt-2 text-sm text-muted-foreground">
+          This portal is restricted to faculty members and instructors. Your current account role is <span className="font-semibold text-foreground">Student</span>.
+        </p>
+        <div className="mt-6">
+          <Link to="/dashboard" className="inline-flex rounded-xl px-5 py-3 text-sm font-semibold text-primary-foreground shadow-md" style={{ background: "var(--gradient-primary)" }}>
+            Go to Student Dashboard
+          </Link>
+        </div>
       </main>
     );
   }
@@ -216,9 +227,8 @@ function FacultyDashboard() {
                       <td className="px-5 py-3 text-muted-foreground text-xs">{a.course}</td>
                       <td className="px-5 py-3 text-muted-foreground text-xs">{a.dueIn}</td>
                       <td className="px-5 py-3">
-                        <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold uppercase ${
-                          a.status === "graded" ? "bg-accent/20 text-accent" : a.status === "in-progress" ? "bg-primary/20 text-primary" : "bg-muted text-muted-foreground"
-                        }`}>
+                        <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold uppercase ${a.status === "graded" ? "bg-accent/20 text-accent" : a.status === "in-progress" ? "bg-primary/20 text-primary" : "bg-muted text-muted-foreground"
+                          }`}>
                           {a.status === "graded" ? `Graded · ${a.grade || "A"}` : a.status}
                         </span>
                       </td>
@@ -491,7 +501,7 @@ function ComposerCard({
     setMsg(null);
     const { data: u } = await supabase.auth.getUser();
     const uid = u.user?.id;
-    
+
     if (tab === "announcement") {
       const { error } = await supabase.from("announcements").insert({ title: aTitle, body: aBody, created_by: uid });
       if (error) setMsg(error.message);
@@ -639,7 +649,7 @@ function ComposerCard({
           <>
             <input required placeholder="Assignment title" value={asgTitle} onChange={(e) => setAsgTitle(e.target.value)}
               className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary" />
-            
+
             <div>
               <label className="block text-[10px] font-semibold text-muted-foreground mb-1 uppercase tracking-wider">Select Course</label>
               <select value={asgCourse} onChange={(e) => setAsgCourse(e.target.value)}
@@ -678,7 +688,7 @@ function ComposerCard({
           <>
             <input required placeholder="Live Class title" value={lcTitle} onChange={(e) => setLcTitle(e.target.value)}
               className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary" />
-            
+
             <div>
               <label className="block text-[10px] font-semibold text-muted-foreground mb-1 uppercase tracking-wider">Select Course</label>
               <select value={lcCourse} onChange={(e) => setLcCourse(e.target.value)}
@@ -868,13 +878,13 @@ function ChatbotWidget({
         const facultyRoles = allUserRoles.filter(r => r.role === "faculty");
         const facultyIds = facultyRoles.map(r => r.user_id);
         const registeredFaculty = profiles.filter(p => facultyIds.includes(p.id));
-        
+
         // Find current logged in user details
         const loggedInName = profiles.find(p => p.id === currentUser?.id)?.full_name || currentUser?.email || "Faculty Member";
 
-        const asksForNames = 
-          normalizedQuery.includes("name") || 
-          normalizedQuery.includes("list") || 
+        const asksForNames =
+          normalizedQuery.includes("name") ||
+          normalizedQuery.includes("list") ||
           normalizedQuery.includes("who");
 
         if (asksForNames) {
@@ -896,14 +906,14 @@ function ChatbotWidget({
         normalizedQuery.includes("list") ||
         normalizedQuery.includes("their")
       ) {
-        const asksForNames = 
-          normalizedQuery.includes("name") || 
-          normalizedQuery.includes("list") || 
-          normalizedQuery.includes("their") || 
+        const asksForNames =
+          normalizedQuery.includes("name") ||
+          normalizedQuery.includes("list") ||
+          normalizedQuery.includes("their") ||
           normalizedQuery.includes("who are");
 
         if (asksForNames) {
-          const namesList = profiles.length > 0 
+          const namesList = profiles.length > 0
             ? profiles.map((p, idx) => `  ${idx + 1}. **${p.full_name || "Anonymous User"}**`).join("\n")
             : "  *(No students registered yet)*";
           responseText = `👥 **Registered Student Directory:**\n\nHere are the names of the currently registered learners on UpLearnLMS:\n\n${namesList}\n\n*Total registered: ${profiles.length} student(s)*`;
@@ -925,22 +935,20 @@ function ChatbotWidget({
         normalizedQuery.includes("courses") ||
         normalizedQuery.includes("subject")
       ) {
-        responseText = `📚 **Live Courses Telemetry:**\n\n• **Total Published Courses:** ${liveCourses.length} course(s)\n${
-          liveCourses.length > 0
+        responseText = `📚 **Live Courses Telemetry:**\n\n• **Total Published Courses:** ${liveCourses.length} course(s)\n${liveCourses.length > 0
             ? liveCourses.map((c, i) => `  ${i + 1}. **${c.title}** (by ${c.instructor})`).join("\n")
             : "  *(No courses have been published yet. Use the 'Course' composer tab to publish one!)*"
-        }`;
+          }`;
       } else if (
         normalizedQuery.includes("announce") ||
         normalizedQuery.includes("update") ||
         normalizedQuery.includes("news") ||
         normalizedQuery.includes("bulletin")
       ) {
-        responseText = `📢 **Announcements Telemetry:**\n\n• **Active Announcements:** ${announcements.length}\n${
-          announcements.length > 0
+        responseText = `📢 **Announcements Telemetry:**\n\n• **Active Announcements:** ${announcements.length}\n${announcements.length > 0
             ? announcements.map((a, i) => `  - **${a.title}**: ${a.body}`).join("\n")
             : "  *(No live announcements published.)*"
-        }`;
+          }`;
       } else if (
         normalizedQuery.includes("class") ||
         normalizedQuery.includes("live class") ||
@@ -948,26 +956,24 @@ function ChatbotWidget({
         normalizedQuery.includes("session") ||
         normalizedQuery.includes("meeting")
       ) {
-        responseText = `📅 **Live Class Telemetry:**\n\n• **Scheduled Live Sessions:** ${liveClassesList.length}\n${
-          liveClassesList.length > 0
+        responseText = `📅 **Live Class Telemetry:**\n\n• **Scheduled Live Sessions:** ${liveClassesList.length}\n${liveClassesList.length > 0
             ? liveClassesList
-                .map((l) => `  - **${l.title}**\n    *Course:* ${l.course}\n    *Time:* ${l.at}\n    *Instructor:* ${l.instructor}`)
-                .join("\n")
+              .map((l) => `  - **${l.title}**\n    *Course:* ${l.course}\n    *Time:* ${l.at}\n    *Instructor:* ${l.instructor}`)
+              .join("\n")
             : "  *(No upcoming live classes scheduled.)*"
-        }`;
+          }`;
       } else if (
         normalizedQuery.includes("assign") ||
         normalizedQuery.includes("task") ||
         normalizedQuery.includes("grade") ||
         normalizedQuery.includes("homework")
       ) {
-        responseText = `📝 **Assignment Telemetry:**\n\n• **Current Active Assignments:** ${assignmentsList.length}\n${
-          assignmentsList.length > 0
+        responseText = `📝 **Assignment Telemetry:**\n\n• **Current Active Assignments:** ${assignmentsList.length}\n${assignmentsList.length > 0
             ? assignmentsList
-                .map((a) => `  - **${a.title}** (Course: ${a.course})\n    *Due:* ${a.dueIn} | *Status:* ${a.status}`)
-                .join("\n")
+              .map((a) => `  - **${a.title}** (Course: ${a.course})\n    *Due:* ${a.dueIn} | *Status:* ${a.status}`)
+              .join("\n")
             : "  *(No assignments published.)*"
-        }`;
+          }`;
       } else if (
         normalizedQuery.includes("hi") ||
         normalizedQuery.includes("hello") ||
@@ -1015,7 +1021,7 @@ function ChatbotWidget({
       {/* Chat Window Panel */}
       {isOpen && (
         <div className="fixed bottom-24 right-6 z-50 flex h-[520px] w-[400px] max-w-[calc(100vw-2rem)] flex-col rounded-2xl border border-border/80 bg-card/95 backdrop-blur-md shadow-2xl overflow-hidden animate-in slide-in-from-bottom-5 duration-300">
-          
+
           {/* Header */}
           <div className="flex items-center gap-3 px-4 py-3 text-white" style={{ background: "var(--gradient-primary)" }}>
             <div className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/20">
@@ -1054,11 +1060,10 @@ function ChatbotWidget({
                 className={`flex flex-col gap-1 ${m.sender === "user" ? "items-end" : "items-start"}`}
               >
                 <div
-                  className={`rounded-2xl p-3 text-xs leading-relaxed max-w-[85%] whitespace-pre-wrap shadow-sm border border-border/40 ${
-                    m.sender === "user"
+                  className={`rounded-2xl p-3 text-xs leading-relaxed max-w-[85%] whitespace-pre-wrap shadow-sm border border-border/40 ${m.sender === "user"
                       ? "bg-primary text-primary-foreground rounded-tr-none"
                       : "bg-muted/70 text-foreground rounded-tl-none"
-                  }`}
+                    }`}
                 >
                   {m.text}
                 </div>

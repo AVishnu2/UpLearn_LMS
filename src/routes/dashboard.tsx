@@ -104,7 +104,7 @@ export const Route = createFileRoute("/dashboard")({
 });
 
 function StudentDashboard() {
-  const { user } = useAuth();
+  const { user, role } = useAuth();
   const { rows: dbCourses } = useRealtimeTable<DbCourse>("courses");
   const { rows: announcements } = useRealtimeTable<DbAnnouncement>("announcements");
   const name = user?.user_metadata?.full_name || user?.email?.split("@")[0] || "Learner";
@@ -298,6 +298,39 @@ function StudentDashboard() {
 
   return (
     <main className="mx-auto max-w-7xl px-6 py-12">
+      {/* Role Notice Banner for Faculty and Admin */}
+      {role === "faculty" && (
+        <div className="mb-6 flex items-center justify-between rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-4 text-sm text-emerald-800 dark:text-emerald-300">
+          <div className="flex items-center gap-2">
+            <span className="font-bold">👨‍🏫 Faculty View:</span> You are previewing how courses and assignments appear to students.
+          </div>
+          <Link to="/faculty" className="rounded-xl bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-emerald-700">
+            Switch to Faculty Portal →
+          </Link>
+        </div>
+      )}
+
+      {role === "admin" && (
+        <div className="mb-6 flex items-center justify-between rounded-2xl border border-purple-500/30 bg-purple-500/10 p-4 text-sm text-purple-800 dark:text-purple-300">
+          <div className="flex items-center gap-2">
+            <span className="font-bold">🛡️ Admin Super-User:</span> Full access enabled. You can inspect all learner data and workflows.
+          </div>
+          <Link to="/admin" className="rounded-xl bg-purple-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-purple-700">
+            Open Admin Portal →
+          </Link>
+        </div>
+      )}
+
+      {!user && (
+        <div className="mb-6 flex items-center justify-between rounded-2xl border border-blue-500/30 bg-blue-500/10 p-4 text-sm text-blue-800 dark:text-blue-300">
+          <div className="flex items-center gap-2">
+            <span className="font-bold">🎓 Demo Learner Mode:</span> Sign in to track live personal progress and earn verified certificates.
+          </div>
+          <Link to="/auth" className="rounded-xl bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground hover:opacity-90">
+            Sign In / Choose Role →
+          </Link>
+        </div>
+      )}
       
       {/* Dynamic welcome header */}
       <header className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between border-b border-slate-200/50 pb-8">
